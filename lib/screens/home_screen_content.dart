@@ -547,7 +547,7 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                             children: [
                               const Expanded(
                                 child: Text(
-                                  'OSON MARKET',
+                                  'YA MARKET',
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(

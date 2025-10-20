@@ -52,7 +52,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                 ),
                 const SizedBox(height: 30),
                 const Text(
-                  'OSON MARKET Admin',
+                  'YA MARKET Admin',
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 20),

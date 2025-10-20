@@ -1,6 +1,6 @@
 {
-    "name": "oson_market",
-    "short_name": "oson_market",
+    "name": "ya_market",
+    "short_name": "ya_market",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

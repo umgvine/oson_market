@@ -54,7 +54,7 @@ class OsonMarketApp extends StatelessWidget {
           child: Consumer<LanguageProvider>(
             builder: (context, lang, __) => MaterialApp(
               themeMode: mode,
-              title: 'OSON MARKET',
+              title: 'YA MARKET',
               localizationsDelegates: [
                 const AppLocalizationsDelegate(),
                 // Built-in localization of basic text for Material widgets
@@ -236,10 +236,7 @@ class OsonMarket extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'OSON MARKET',
-          style: TextStyle(fontFamily: 'Gagalin'),
-        ),
+        title: const Text('YA MARKET', style: TextStyle(fontFamily: 'Gagalin')),
       ),
       body: Center(
         child: ElevatedButton(

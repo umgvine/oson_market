@@ -1,6 +1,6 @@
 ## Repo snapshot for AI coding agents
 
-This file is a concise guide for automated coding agents (Copilot-style) working on the `oson_market` Flutter app. Focus on what is discoverable in the repository and what makes this project unique.
+This file is a concise guide for automated coding agents (Copilot-style) working on the `ya_market` Flutter app. Focus on what is discoverable in the repository and what makes this project unique.
 
 - **Project type**: Flutter e-commerce app (Dart, Flutter SDK). Multi-platform: Android, iOS, Linux, macOS, Windows, Web.
 - **Primary entrypoints**: `lib/main.dart` (app bootstrap) and `lib/app.dart` (MaterialApp + theme + splash).

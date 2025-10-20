@@ -1,4 +1,4 @@
-# Oson Market (Flutter)
+# YA Market (Flutter)
 
 Flutter asosidagi ko'p platformali e-commerce ilova.
 
@@ -11,23 +11,23 @@ Quyida web (GitHub Pages) va Android APK uchun avtomatik build/deploy jarayonlar
 1. GitHub’da bo'sh repo yarating (public yoki private).
 2. Lokalda quyidagilarni bajaring:
 
-	 ```bash
-	 git init
-	 git add .
-	 git commit -m "Initial commit"
-	 git branch -M main
-	 git remote add origin https://github.com/<user>/<repo>.git
-	 git push -u origin main
-	 ```
+  ```bash
+  git init
+  git add .
+  git commit -m "Initial commit"
+  git branch -M main
+  git remote add origin https://github.com/<user>/<repo>.git
+  git push -u origin main
+  ```
 
 ### 2) Web deploy (GitHub Pages)
 
 Ushbu repo `/.github/workflows/deploy_web.yml` workflow’ini o‘z ichiga oladi:
 
 - `main` branchga push qilinganda:
-	- `flutter test` ishga tushadi
-	- `flutter build web` bajariladi
-	- Natija `gh-pages` branch’ga publish qilinadi
+  - `flutter test` ishga tushadi
+  - `flutter build web` bajariladi
+  - Natija `gh-pages` branch’ga publish qilinadi
 
 Custom domen uchun Settings → Secrets and variables → Actions → Variables bo‘limida `PAGES_CNAME` nomli variable yarating va domeningizni kiriting (masalan, `shop.example.uz`). Workflow `CNAME` faylini avtomatik qo‘shadi.
 

@@ -24,7 +24,7 @@ class SplashScreen extends StatelessWidget {
             const Icon(Icons.shopping_bag, size: 96, color: Colors.white),
             const SizedBox(height: 20),
             const Text(
-              'OSON MARKET',
+              'YA MARKET',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 28,

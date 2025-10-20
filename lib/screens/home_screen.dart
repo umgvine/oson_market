@@ -40,7 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // Shell used to render header + search + content so AppBar and search appear on every tab
     Widget screenShell({required Widget child}) {
-      // Only keep a pinned search bar at the top (removed OSON MARKET header panel)
+      // Only keep a pinned search bar at the top (removed YA MARKET header panel)
       return Container(
         decoration: const BoxDecoration(gradient: kAppGradient),
         child: CustomScrollView(

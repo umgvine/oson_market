@@ -12,7 +12,7 @@ class AdminPanelApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'OSON MARKET Admin',
+      title: 'YA MARKET Admin',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,

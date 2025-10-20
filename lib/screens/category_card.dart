@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:oson_market/core/widgets/responsive_widget.dart';
+import 'package:ya_market/core/widgets/responsive_widget.dart';
 
 class CategoryCard extends StatelessWidget {
   final Map<String, dynamic> category;

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:oson_market/screens/product_detail_screen.dart';
+import 'package:ya_market/screens/product_detail_screen.dart';
 
 void main() {
   final demoProduct = {

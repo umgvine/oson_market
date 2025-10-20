@@ -57,36 +57,68 @@ class ProfileScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-            Card(
-              child: Column(
-                children: [
-                  const ListTile(
-                    title: Text('Til (Language)'),
-                    subtitle: Text('RU / UZ / EN'),
-                  ),
-                  RadioListTile<String>(
-                    value: 'ru',
-                    groupValue: lang.currentLocale.languageCode,
-                    title: const Text('Русский'),
-                    onChanged: (v) => lang.setLanguage(v!),
-                  ),
-                  RadioListTile<String>(
-                    value: 'uz',
-                    groupValue: lang.currentLocale.languageCode,
-                    title: const Text("O'zbekcha"),
-                    onChanged: (v) => lang.setLanguage(v!),
-                  ),
-                  RadioListTile<String>(
-                    value: 'en',
-                    groupValue: lang.currentLocale.languageCode,
-                    title: const Text('English'),
-                    onChanged: (v) => lang.setLanguage(v!),
-                  ),
-                ],
-              ),
+            _LanguageGroup(
+              current: lang.currentLocale.languageCode,
+              onChanged: (code) => lang.setLanguage(code),
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _LanguageGroup extends StatefulWidget {
+  const _LanguageGroup({required this.current, required this.onChanged});
+  final String current;
+  final ValueChanged<String> onChanged;
+
+  @override
+  State<_LanguageGroup> createState() => _LanguageGroupState();
+}
+
+class _LanguageGroupState extends State<_LanguageGroup> {
+  late String _selected;
+
+  @override
+  void initState() {
+    super.initState();
+    _selected = widget.current;
+  }
+
+  void _select(String value) {
+    if (_selected == value) return;
+    setState(() => _selected = value);
+    widget.onChanged(value);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Column(
+        children: [
+          const ListTile(
+            title: Text('Til (Language)'),
+            subtitle: Text('RU / UZ / EN'),
+          ),
+          for (final item in const [
+            ('ru', 'Русский'),
+            ('uz', "O'zbekcha"),
+            ('en', 'English'),
+          ])
+            ListTile(
+              title: Text(item.$2),
+              leading: Icon(
+                _selected == item.$1
+                    ? Icons.radio_button_checked
+                    : Icons.radio_button_off,
+                color: _selected == item.$1
+                    ? Theme.of(context).colorScheme.primary
+                    : null,
+              ),
+              onTap: () => _select(item.$1),
+            ),
+        ],
       ),
     );
   }

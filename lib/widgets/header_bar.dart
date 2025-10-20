@@ -28,7 +28,7 @@ class HeaderBar extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  'OSON MARKET',
+                  'YA MARKET',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
@@ -53,7 +53,11 @@ class HeaderBar extends StatelessWidget {
                     color: Colors.white24,
                     border: Border.all(color: Colors.white30, width: 1),
                   ),
-                  child: const Icon(Icons.person, color: Colors.white, size: 20),
+                  child: const Icon(
+                    Icons.person,
+                    color: Colors.white,
+                    size: 20,
+                  ),
                 ),
               ),
               const SizedBox(width: 10),
@@ -68,7 +72,11 @@ class HeaderBar extends StatelessWidget {
                     color: Colors.white24,
                     border: Border.all(color: Colors.white30, width: 1),
                   ),
-                  child: const Icon(Icons.settings, color: Colors.white, size: 20),
+                  child: const Icon(
+                    Icons.settings,
+                    color: Colors.white,
+                    size: 20,
+                  ),
                 ),
               ),
             ],
