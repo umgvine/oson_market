@@ -127,16 +127,28 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // Shell used to render header + search + content so AppBar and search appear on every tab
     Widget screenShell({required Widget child}) {
+      // Use a CustomScrollView with a pinned header so search stays on top when scrolling
       return Container(
         decoration: const BoxDecoration(gradient: kAppGradient),
-        child: Column(
-          children: [
-            HeaderBar(
-              onProfile: () => setState(() => _currentIndex = 3),
-              onSettings: _openSettingsSheet,
+        child: CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              pinned: true,
+              toolbarHeight: 60,
+              flexibleSpace: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  HeaderBar(
+                    onProfile: () => setState(() => _currentIndex = 3),
+                    onSettings: _openSettingsSheet,
+                  ),
+                  const AppSearchBar(),
+                ],
+              ),
             ),
-            const AppSearchBar(),
-            Expanded(child: child),
+            SliverFillRemaining(hasScrollBody: true, child: child),
           ],
         ),
       );
@@ -290,11 +302,7 @@ class _HomeScreenState extends State<HomeScreen> {
           return Container(
             height: 76 + MediaQuery.of(context).padding.bottom,
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF6D28D9), Color(0xFFF472B6)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              gradient: kAppGradient,
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(24),
                 topRight: Radius.circular(24),

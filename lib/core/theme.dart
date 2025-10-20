@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
 // Shared theme constants used across the app for gradients and common colors.
+// Pink ↔ Blue gradient ("pushti va ko'k")
 const LinearGradient kAppGradient = LinearGradient(
-  colors: [Color(0xFF6D28D9), Color(0xFFF472B6)],
+  colors: [Color(0xFFEC4899), Color(0xFF3B82F6)],
   begin: Alignment.topLeft,
   end: Alignment.bottomRight,
 );
