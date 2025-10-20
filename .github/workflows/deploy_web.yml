@@ -1,0 +1,55 @@
+name: Deploy Flutter Web to GitHub Pages
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+# Allow pushing to gh-pages with GITHUB_TOKEN
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          # Pin if you want a fixed version; else latest stable will be used
+          # flutter-version: '3.24.0'
+          cache: true
+
+      - name: Pub get
+        run: flutter pub get
+
+      - name: Run tests
+        run: flutter test
+
+      - name: Build web (with base-href)
+        run: |
+          set -e
+          BASE_HREF="/"
+          # If custom domain is not set, use project pages path /<repo>/
+          if [ -z "${{ vars.PAGES_CNAME }}" ]; then
+            BASE_HREF="/${{ github.event.repository.name }}/"
+          fi
+          echo "Using base href: $BASE_HREF"
+          flutter build web --release --base-href "$BASE_HREF"
+          # SPA fallback for client-side routing
+          cp build/web/index.html build/web/404.html
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: build/web
+          # Set repo variable PAGES_CNAME (Settings → Secrets and variables → Actions → Variables)
+          cname: ${{ vars.PAGES_CNAME }}

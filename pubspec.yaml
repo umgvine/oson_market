@@ -1,0 +1,81 @@
+name: oson_market
+description: "Oson Market - online do'kon ilovasi"
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.8.1 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  http: ^1.1.0
+  cupertino_icons: ^1.0.8
+  provider: ^6.1.1
+  shared_preferences: ^2.2.2
+  cached_network_image: ^3.3.0
+  flutter_svg: ^2.0.9
+  url_launcher: ^6.1.11
+  intl: ^0.20.2
+  pull_to_refresh: ^2.0.0
+  google_fonts: ^4.0.4
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.10.0
+
+flutter:
+  # If you plan to add local assets later, re-add them here.
+  # For now the project uses network placeholders; remove missing local asset entries to avoid warnings.
+  uses-material-design: true
+
+  # Убран список локальных ассетов, которых нет в репозитории.
+  # Если добавите файлы assets/... — раскомментируйте и укажите их тут.
+  assets:
+    - assets/banners/shoes_banner.png
+    - assets/banners/summer_sale_banner.png
+    - assets/banners/watches_banner.png
+    - assets/categories/apteka.png
+    - assets/categories/bytovaya_tehnika.png
+    - assets/categories/detskiya_tovary.png
+    - assets/categories/dlya_jivotnyh.png
+    - assets/categories/dom_i_sad.png
+    - assets/categories/elektronika.png
+    - assets/categories/knigi.png
+    - assets/categories/krasota.png
+    - assets/categories/mebel.png
+    - assets/categories/odejda.png
+    - assets/categories/sport.png
+    - assets/categories/stroitelstvo_i_remont.png
+    - assets/demo/demo_product.png
+    - assets/subcategories/kids.png
+    - assets/subcategories/laptops.png
+    - assets/subcategories/men.png
+    - assets/subcategories/phones.png
+    - assets/subcategories/tv.png
+    - assets/subcategories/women.png
+    - assets/app_icon_anim.png
+
+  fonts:
+    - family: Gagalin
+      fonts:
+        - asset: assets/fonts/Gagalin-Regular.otf
+    - family: Montserrat
+      fonts:
+        - asset: assets/fonts/Montserrat-Regular.ttf
+        - asset: assets/fonts/Montserrat-Medium.ttf
+        - asset: assets/fonts/Montserrat-Bold.ttf
+        - asset: assets/fonts/Montserrat-SemiBold.ttf
+
+# Шрифты также закомментированы — подключайте реальные файлы, когда добавите их.
+# fonts moved into the `flutter:` section above so Flutter can find them.
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/app_icon_anim.png"

@@ -1,0 +1,1553 @@
+import 'dart:async';
+
+/// < VAQTINCHA TO'XTATISH VA REJIMLAR UCHUN KERAK
+import 'package:flutter/material.dart';
+
+/// < FLUTTER ASOSIY KUTUBXONASI
+import 'package:flutter/services.dart';
+import '../core/theme.dart';
+
+/// < TIZIM UI SOZLASH UCHUN
+import '../data/data.dart';
+
+/// < MA'LUMOTLAR BAZASI UCHUN
+
+class HomeScreenContent extends StatefulWidget {
+  /// BOSH EKRAN KONTENTI - ASOSIY WIDGET
+  final List<Map<String, dynamic>> products;
+
+  /// < MAHSULOTLAR RO'YXATI
+  final void Function(Map<String, dynamic>) onAddToCart;
+
+  /// < SAVATGA QO'SHISH FUNKSIYASI
+  final void Function(String category, String? subcategory)? onFilter;
+
+  /// < FILTR FUNKSIYASI
+  final bool showHeader;
+
+  const HomeScreenContent({
+    /// KONSTRUKTOR - WIDGET PARAMETRLARI
+    super.key,
+
+    /// < WIDGET KALITI
+    required this.products,
+
+    /// < MAJURIY MAHSULOTLAR
+    required this.onAddToCart,
+
+    /// < MAJURIY SAVAT FUNKSIYASI
+    this.onFilter,
+
+    /// < IHTIYORIY FILTR FUNKSIYASI
+    this.showHeader = true,
+  });
+
+  @override
+  State<HomeScreenContent> createState() => _HomeScreenContentState();
+
+  /// < HOLAT YARATISH
+}
+
+class _HomeScreenContentState extends State<HomeScreenContent> {
+  /// < BOSH EKRAN HOLATI
+  // BANNER SLIDER UCHUN PAGE CONTROLLER
+  final PageController _bannerController = PageController(
+    /// < BANNER NAVIGATSIYASI
+    viewportFraction: 0.98,
+
+    /// < EKRANDA KO'RINADIGAN QISMI
+  );
+  int _bannerIndex = 0;
+
+  /// < JORIY BANNER INDEKSI
+  Timer? _bannerTimer;
+
+  /// < BANNER AVTOMATIK AYLANISH UCHUN
+  Timer? _resumeTimer;
+
+  /// < TIMERNI QAYTA BOSHLASH UCHUN
+
+  @override
+  void initState() {
+    /// < WIDGET YARILGANDA
+    super.initState();
+
+    /// < OTA SINFNING initState NI CHAQIRISH
+    _startBannerTimerPeriodic();
+
+    /// < BANNER TIMERNI BOSHLASH
+  }
+
+  @override
+  void dispose() {
+    /// < WIDGET YOPILGANDA
+    _bannerTimer?.cancel();
+
+    /// < BANNER TIMERNI TO'XTATISH
+    _resumeTimer?.cancel();
+
+    /// < RESUME TIMERNI TO'XTATISH
+    _bannerController.dispose();
+
+    /// < CONTROLLERNI TOZALASH
+    super.dispose();
+
+    /// < OTA SINFNING dispose NI CHAQIRISH
+  }
+
+  /// BANNER AVTOMATIK AYLANISHINI BOSHLASH
+  void _startBannerTimerPeriodic() {
+    _bannerTimer?.cancel();
+
+    /// < AVVALGI TIMERNI TO'XTATISH
+    _bannerTimer = Timer.periodic(const Duration(seconds: 4), (_) {
+      /// < HAR 4 SEKUNDDA
+      if (!mounted) return;
+
+      /// < WIDGET O'CHIRILGAN BO'LSA CHIQISH
+      if (banners.isEmpty) return;
+
+      /// < BANNERLAR BO'SH BO'LSA CHIQISH
+
+      final next = (_bannerIndex + 1) % banners.length;
+
+      /// < KEYINGI BANNER INDEKSI
+      if (_bannerController.hasClients) {
+        /// < CONTROLLER TAYYOR BO'LSA
+        _bannerController.animateToPage(
+          /// < BANNERNI AYLANTIRISH
+          next,
+
+          /// < KEYINGI SAHIFA
+          duration: const Duration(milliseconds: 500),
+
+          /// < AYLANISH DAVOMIYLIGI
+          curve: Curves.easeInOut,
+
+          /// < AYLANISH EGRI CHIZIG'I
+        );
+      }
+    });
+  }
+
+  /// BANNER TIMERNI TO'XTATISH
+  void _stopBannerTimer() {
+    _bannerTimer?.cancel();
+
+    /// < TIMERNI TO'XTATISH
+    _bannerTimer = null;
+
+    /// < TIMERNI NULL GA O'RNATISH
+  }
+
+  /// BANNER TIMERNI BERILGAN SEKUNDDAN KEYIN QAYTA BOSHLASH
+  void _scheduleBannerResume({int seconds = 4}) {
+    _resumeTimer?.cancel();
+
+    /// < AVVALGI RESUME TIMERNI TO'XTATISH
+    _resumeTimer = Timer(Duration(seconds: seconds), () {
+      /// < YANGI TIMER YARATISH
+      if (!mounted) return;
+
+      /// < WIDGET O'CHIRILGAN BO'LSA CHIQISH
+      _startBannerTimerPeriodic();
+
+      /// < BANNER TIMERNI QAYTA BOSHLASH
+    });
+  }
+
+  /// BANNER RESUME NI BEKOR QILISH
+  void _cancelBannerResume() {
+    _resumeTimer?.cancel();
+
+    /// < RESUME TIMERNI TO'XTATISH
+    _resumeTimer = null;
+
+    /// < RESUME TIMERNI NULL GA O'RNATISH
+  }
+
+  /// BANNER SLIDER WIDGETINI YARATISH
+  Widget _banner() {
+    return LayoutBuilder(
+      /// < EKRAN O'LCHAMINI OLISH UCHUN
+      builder: (context, constraints) {
+        final availableWidth = constraints.maxWidth.isFinite
+            /// < MAVJUD ENNI HISOBLASH
+            ? constraints.maxWidth
+            : MediaQuery.of(context).size.width;
+
+        const aspectRatio = 136.667 / 328.0;
+
+        /// < BANNER NISBATI
+        final computed = availableWidth * aspectRatio;
+
+        /// < HISOBLANGAN BALANDLIK
+        final height = computed.clamp(160.0, 220.0);
+
+        /// < BALANDLIKNI CHEGARALASH (немного увеличили)
+
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 12), // Добавили отступы по бокам
+          height: height,
+          child: Stack(
+            /// < BANNER VA INDIKATORLARNI USTMA-UST QO'YISH
+            children: [
+              NotificationListener<ScrollNotification>(
+                /// < SCROLL HODISALARINI KUZATISH
+                onNotification: (notification) {
+                  if (notification is ScrollStartNotification) {
+                    /// < SCROLL BOSHLANGANDA
+                    if (notification.dragDetails != null) {
+                      /// < USER TORTayotgan BO'LSA
+                      _stopBannerTimer();
+
+                      /// < TIMERNI TO'XTATISH
+                      _cancelBannerResume();
+
+                      /// < RESUME NI BEKOR QILISH
+                    }
+                  } else if (notification is ScrollEndNotification) {
+                    /// < SCROLL TUGAGANDA
+                    _scheduleBannerResume(seconds: 4);
+
+                    /// < TIMERNI QAYTA BOSHLASH
+                  }
+                  return false;
+
+                  /// < HODISANI DAVOM ETTIRISH
+                },
+                child: PageView.builder(
+                  /// < BANNER SAHIFALARI YARATISH
+                  controller: _bannerController,
+
+                  /// < BANNER KONTROLLERI
+                  onPageChanged: (i) {
+                    if (!mounted) return;
+
+                    /// < WIDGET O'CHIRILGAN BO'LSA CHIQISH
+                    setState(() => _bannerIndex = i);
+
+                    /// < INDEKSNI YANGILASH
+                  },
+                  itemCount: banners.length,
+
+                  /// < BANNERLAR SONI
+                  itemBuilder: (ctx, i) {
+                    final banner = banners[i];
+
+                    /// < BANNER MA'LUMOTLARI
+                    return ClipRRect(
+                      /// < BANNERNI KESISH
+                      borderRadius: BorderRadius.circular(20),
+
+                      /// < YUMALOQ BURCHAK (увеличили с 16 до 20)
+                      child: Container(
+                        /// < BANNER KONTAYNERI
+                        width: double.infinity,
+
+                        /// < BUTUN ENNI EGALLASH
+                        decoration: BoxDecoration(
+                          /// < BANNER DEKORATSIYASI
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.15),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Stack(
+                          /// < RASM VA MATN USTMA-UST
+                          fit: StackFit.expand,
+
+                          /// < BUTUN JOYNI EGALLASH
+                          children: [
+                            Image.asset(
+                              /// < BANNER RASMI
+                              banner['img'].toString(),
+
+                              /// < RASM MILI
+                              fit: BoxFit.cover,
+
+                              /// < RASMNI MOSLASH
+                              errorBuilder: (_, __, ___) => Container(
+                                /// < XATO HOLATIDA
+                                color: Colors.grey.shade700,
+
+                                /// < KULRANG FON
+                              ),
+                            ),
+                            Positioned(
+                              /// < INDIKATORLARNI PASTGA JOYLASH
+                              bottom: 6,
+
+                              /// < PASTDAN MASOFA
+                              left: 0,
+
+                              /// < CHAPDAN
+                              right: 0,
+
+                              /// < O'NGDAN
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+
+                                /// < MARKAZGA TEKSHIRISH
+                                children: List.generate(
+                                  /// < INDIKATORLAR RO'YXATI
+                                  banners.length,
+                                  (i) => Container(
+                                    width: 6,
+
+                                    /// < INDIKATOR ENI
+                                    height: 6,
+
+                                    /// < INDIKATOR BALANDLIGI
+                                    margin: const EdgeInsets.symmetric(horizontal: 4),
+
+                                    /// < INDIKATORLAR ORASIDAGI MASOFA
+                                    decoration: BoxDecoration(
+                                      color: i == _bannerIndex
+                                          /// < FAOL INDIKATOR RANGI
+                                          ? const Color.fromARGB(123, 255, 255, 255)
+                                          /// < OQ
+                                          : const Color.fromARGB(77, 0, 0, 0),
+
+                                      /// < KULRANG
+                                      shape: BoxShape.circle,
+
+                                      /// < DOIRA SHAKLI
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  /// KATEGORIYALAR QATORINI YARATISH
+  Widget _categoriesRow() {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 13),
+
+      /// < VERTIKAL PADDING
+      child: SizedBox(
+        height: 110,
+
+        /// < KATEGORIYALAR BALANDLIGI
+        child: Builder(
+          builder: (ctx) {
+            // ASOSIY KATEGORIYALAR RO'YXATI
+            final priorityNames = [
+              'Электроника',
+
+              /// < ELEKTRONIKA
+              'Бытовая техника',
+
+              /// < MAISHIY TEKNIKA
+              'Одежда',
+
+              /// < KIYIM
+              'Детские товары',
+
+              /// < BOLALAR MAHSULOTLARI
+            ];
+
+            // QOLGAN KATEGORIYALARNI ALFABIT BO'YICHA SARALASH
+            final remaining =
+                categories
+                    .where((c) => !priorityNames.contains(c['name']))
+                    /// < ASOSIY KATEGORIYALARDAN BOSHQA
+                    .toList()
+                  ..sort(
+                    /// < ALFABIT BO'YICHA SARALASH
+                    (a, b) =>
+                        (a['name'] as String).compareTo(b['name'] as String),
+                  );
+
+            // SARALANGAN KATEGORIYALAR RO'YXATI
+            final sortedCategories = <Map<String, dynamic>>[];
+            for (final name in priorityNames) {
+              /// < ASOSIY KATEGORIYALARNI QO'SHISH
+              final idx = categories.indexWhere((c) => c['name'] == name);
+              if (idx != -1) sortedCategories.add(categories[idx]);
+            }
+            sortedCategories.addAll(remaining);
+
+            /// < QOLGAN KATEGORIYALARNI QO'SHISH
+
+            return ListView.separated(
+              /// < KATEGORIYALAR RO'YXATI
+              scrollDirection: Axis.horizontal,
+
+              /// < GORIZONTAL SCROLL
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+
+              /// < YON PADDING
+              itemCount: sortedCategories.length + 1,
+
+              /// < "BARCHA KATEGORIYALAR" + BOSHQALAR
+              separatorBuilder: (_, __) => const SizedBox(width: 12),
+
+              /// < KATEGORIYALAR ORASIDAGI MASOFA
+              itemBuilder: (ctx, i) {
+                // BIRINCHI ELEMENT - "BARCHA KATEGORIYALAR" TUGMASI
+                if (i == 0) {
+                  return GestureDetector(
+                    /// < TUGMA BOSILISHINI KUZATISH
+                    onTap: () => widget.onFilter?.call('all', null),
+
+                    /// < FILTRNI CHAQIRISH
+                    child: Column(
+                      /// < TUGMA VA MATN
+                      children: [
+                        Container(
+                          /// < TUGMA KONTEYNERI
+                          width: 56,
+
+                          /// < TUGMA ENI
+                          height: 56,
+
+                          /// < TUGMA BALANDLIGI
+                          padding: const EdgeInsets.all(5),
+
+                          /// < ICON UCHUN PADDING
+                          decoration: BoxDecoration(
+                            color: const Color.fromARGB(96, 17, 18, 20),
+
+                            /// < TUGMA RANGI
+                            borderRadius: BorderRadius.circular(12),
+
+                            /// < YUMALOQ BURCHAK
+                            boxShadow: [
+                              /// < SOYA EFEKTI
+                              BoxShadow(
+                                color: const Color.fromARGB(144, 58, 54, 54).withAlpha(
+                                  /// < SOYA RANGI
+                                  (0.4 * 255).round(),
+                                ),
+                                blurRadius: 6,
+
+                                /// < SOYA XIRA
+                                offset: const Offset(0, 2),
+
+                                /// < SOYA JOYLASHUVI
+                              ),
+                            ],
+                          ),
+                          child: const Center(
+                            /// < ICONNI MARKAZGA JOYLASH
+                            child: Icon(
+                              Icons.grid_view_rounded,
+
+                              /// < KATEGORIYALAR ICONI
+                              color: Colors.white,
+
+                              /// < ICON RANGI
+                              size: 28,
+
+                              /// < ICON O'LCHAMI
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+
+                        /// < TUGMA VA MATN ORASIDAGI MASOFA
+                        SizedBox(
+                          width: 84,
+
+                          /// < MATN ENI
+                          child: Text(
+                            'Все\nкатегории',
+
+                            /// < "BARCHA KATEGORIYALAR" MATNI
+                            maxLines: 2,
+
+                            /// < MAKSIMUM 2 QATOR
+                            overflow: TextOverflow.ellipsis,
+
+                            /// < ORTIQCHA MATN NI ... QILISH
+                            style: const TextStyle(
+                              color: Colors.white,
+
+                              /// < MATN RANGI
+                              fontSize: 12,
+
+                              /// < MATN O'LCHAMI
+                              fontWeight: FontWeight.w600,
+
+                              /// < MATN QALINLIGI
+                            ),
+                            textAlign: TextAlign.center,
+
+                            /// < MATN MARKAZI
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                // KATEGORIYA ELEMENTLARI
+                final c = sortedCategories[i - 1];
+
+                /// < KATEGORIYA MA'LUMOTLARI
+                // KATEGORIYA NOMINI 2 QATORGA BO'LISH
+                final rawName = (c['name'] as String).trim();
+
+                /// < ASL NOM
+                final words = rawName.split(RegExp(r'\s+'));
+
+                /// < SO'ZLARGA BO'LISH
+                final displayName = words.length > 1
+                    /// < 2 QATORLI KO'RINISH
+                    ? '${words.sublist(0, words.length - 1).join(' ')}\n${words.last}'
+                    : rawName;
+
+                /// < 1 QATORLI KO'RINISH
+
+                return GestureDetector(
+                  /// < KATEGORIYA BOSILISHINI KUZATISH
+                  onTap: () => widget.onFilter?.call(rawName, null),
+
+                  /// < FILTRNI CHAQIRISH
+                  child: Column(
+                    /// < KATEGORIYA RASMI VA MATNI
+                    children: [
+                      Container(
+                        /// < KATEGORIYA RASMI KONTEYNERI
+                        width: 56,
+
+                        /// < RASM ENI
+                        height: 56,
+
+                        /// < RASM BALANDLIGI
+                        padding: const EdgeInsets.all(5),
+
+                        /// < RASM UCHUN PADDING
+                        decoration: BoxDecoration(
+                          color: const Color.fromARGB(138, 39, 43, 49),
+
+                          /// < FON RANGI
+                          borderRadius: BorderRadius.circular(12),
+
+                          /// < YUMALOQ BURCHAK
+                          boxShadow: [
+                            /// < SOYA EFEKTI
+                            BoxShadow(
+                              color: Colors.black.withAlpha(
+                                /// < SOYA RANGI
+                                (0.4 * 255).round(),
+                              ),
+                              blurRadius: 6,
+
+                              /// < SOYA XIRA
+                              offset: const Offset(0, 2),
+
+                              /// < SOYA JOYLASHUVI
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          /// < RASMGA YUMALOQ BURCHAK
+                          borderRadius: BorderRadius.circular(8),
+
+                          /// < RASM BURCHAK RADIUSI
+                          child: Image.asset(
+                            /// < KATEGORIYA RASMI
+                            c['img'] as String,
+
+                            /// < RASM MANZILI
+                            width: double.infinity,
+
+                            /// < BUTUN ENNI EGALLASH
+                            height: double.infinity,
+
+                            /// < BUTUN BALANDLIKNI EGALLASH
+                            fit: BoxFit.cover,
+
+                            /// < RASMNI MOSLASH
+                            errorBuilder: (_, __, ___) =>
+                                /// < XATO HOLATIDA
+                                Container(color: Colors.grey.shade800),
+
+                            /// < KULRANG FON
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+
+                      /// < RASM VA MATN ORASIDAGI MASOFA
+                      SizedBox(
+                        width: 84,
+
+                        /// < MATN ENI
+                        child: Text(
+                          displayName,
+
+                          /// < KATEGORIYA NOMI
+                          maxLines: 2,
+
+                          /// < MAKSIMUM 2 QATOR
+                          overflow: TextOverflow.ellipsis,
+
+                          /// < ORTIQCHA MATN NI ... QILISH
+                          style: const TextStyle(
+                            color: Colors.white,
+
+                            /// < MATN RANGI
+                            fontSize: 12,
+
+                            /// < MATN O'LCHAMI
+                            fontWeight: FontWeight.w600,
+
+                            /// < MATN QALINLIGI
+                          ),
+                          textAlign: TextAlign.center,
+
+                          /// < MATN MARKAZI
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  /// "AJOYIB NARXLAR" BO'LIMINI YARATISH
+  Widget _wowPrices(BuildContext context) {
+    final sample = widget.products.take(4).toList();
+
+    /// < DASTLABKI 4 TA MAHSULOT
+    return SizedBox(
+      height: 110,
+
+      /// < BO'LIM BALANDLIGI
+      child: ListView.separated(
+        /// < MAHSULOTLAR RO'YXATI
+        scrollDirection: Axis.horizontal,
+
+        /// < GORIZONTAL SCROLL
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+
+        /// < YON PADDING
+        itemCount: sample.length,
+
+        /// < MAHSULOTLAR SONI
+        separatorBuilder: (_, __) => const SizedBox(width: 12),
+
+        /// < MAHSULOTLAR ORASIDAGI MASOFA
+        itemBuilder: (ctx, i) {
+          final p = sample[i];
+
+          /// < MAHSULOT MA'LUMOTLARI
+          return Container(
+            width: 220,
+
+            /// < MAHSULOT KARTASI ENI
+            padding: const EdgeInsets.all(8),
+
+            /// < MAHSULOT UCHUN PADDING
+            decoration: BoxDecoration(
+              color: const Color(0xFF171718),
+
+              /// < FON RANGI
+              borderRadius: BorderRadius.circular(12),
+
+              /// < YUMALOQ BURCHAK
+            ),
+            child: Row(
+              /// < RASM VA MA'LUMOTLAR
+              children: [
+                ClipRRect(
+                  /// < MAHSULOT RASMI
+                  borderRadius: BorderRadius.circular(8),
+
+                  /// < RASM BURCHAK RADIUSI
+                  child: Image.asset(
+                    p['img'] as String,
+
+                    /// < RASM MANZILI
+                    width: 72,
+
+                    /// < RASM ENI
+                    height: 72,
+
+                    /// < RASM BALANDLIGI
+                    fit: BoxFit.cover,
+
+                    /// < RASMNI MOSLASH
+                    errorBuilder: (_, __, ___) => Container(
+                      /// < XATO HOLATIDA
+                      color: Colors.grey.shade800,
+
+                      /// < KULRANG FON
+                      width: 72,
+
+                      /// < RASM ENI
+                      height: 72,
+
+                      /// < RASM BALANDLIGI
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+
+                /// < RASM VA MATN ORASIDAGI MASOFA
+                Expanded(
+                  /// < QOLGAN ENNI EGALLASH
+                  child: Column(
+                    /// < MAHSULOT NOMI VA NARXI
+                    crossAxisAlignment: CrossAxisAlignment.start,
+
+                    /// < CHAPGA TEKSHIRISH
+                    mainAxisAlignment: MainAxisAlignment.center,
+
+                    /// < MARKAZGA TEKSHIRISH
+                    children: [
+                      Text(
+                        /// < MAHSULOT NOMI
+                        p['name'] ?? '',
+
+                        /// < NOMI
+                        maxLines: 2,
+
+                        /// < MAKSIMUM 2 QATOR
+                        overflow: TextOverflow.ellipsis,
+
+                        /// < ORTIQCHA MATN NI ... QILISH
+                        style: const TextStyle(
+                          color: Colors.white70,
+
+                          /// < MATN RANGI
+                          fontSize: 14,
+
+                          /// < MATN O'LCHAMI
+                          fontWeight: FontWeight.w600,
+
+                          /// < MATN QALINLIGI
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+
+                      /// < NOM VA NARX ORASIDAGI MASOFA
+                      Text(
+                        /// < MAHSULOT NARXI
+                        '${p['price']} UZS',
+
+                        /// < NARX
+                        style: const TextStyle(
+                          color: Colors.pinkAccent,
+
+                          /// < NARX RANGI
+                          fontWeight: FontWeight.w900,
+
+                          /// < NARX QALINLIGI
+                          fontSize: 14,
+
+                          /// < NARX O'LCHAMI
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  /// MAHSULOT KARTOCHKASINI YARATISH
+  Widget _productCard(Map<String, dynamic> p) {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFF171718),
+
+        /// < KARTA FON RANGI
+        borderRadius: BorderRadius.circular(12),
+
+        /// < KARTA BURCHAK RADIUSI
+      ),
+      child: Column(
+        /// < RASM VA MA'LUMOTLAR
+        crossAxisAlignment: CrossAxisAlignment.start,
+
+        /// < CHAPGA TEKSHIRISH
+        children: [
+          // MAHSULOT RASMI
+          ClipRRect(
+            /// < RASMGA YUMALOQ BURCHAK
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+
+            /// < FAQAT YUQORI BURCHAKLAR
+            child: SizedBox(
+              width: double.infinity,
+
+              /// < BUTUN ENNI EGALLASH
+              // RASM BALANDLIGINI HISOBLASH
+              child: LayoutBuilder(
+                /// < KARTA O'LCHAMINI OLISH
+                builder: (ctx, constraints) {
+                  final cardWidth = constraints.maxWidth.isFinite
+                      /// < KARTA ENI
+                      ? constraints.maxWidth
+                      : MediaQuery.of(ctx).size.width;
+                  final imageHeight = cardWidth * (238.66 / 179.0);
+
+                  /// < RASM BALANDLIGI NISBATI
+                  return SizedBox(
+                    height: imageHeight,
+
+                    /// < RASM BALANDLIGI
+                    width: double.infinity,
+
+                    /// < RASM ENI
+                    child: Image.asset(
+                      /// < MAHSULOT RASMI
+                      p['img'] as String,
+
+                      /// < RASM MANZILI
+                      width: double.infinity,
+
+                      /// < BUTUN ENNI EGALLASH
+                      height: imageHeight,
+
+                      /// < HISOBLANGAN BALANDLIK
+                      fit: BoxFit.cover,
+
+                      /// < RASMNI MOSLASH
+                      errorBuilder: (_, __, ___) =>
+                          /// < XATO HOLATIDA
+                          Container(color: Colors.grey.shade800),
+
+                      /// < KULRANG FON
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+          // QOLGAN MA'LUMOTLAR
+          Expanded(
+            /// < QOLGAN BALANDLIKNI EGALLASH
+            child: Padding(
+              /// < MA'LUMOTLAR UCHUN PADDING
+              padding: const EdgeInsets.all(8.0),
+
+              /// < HAR TOMONLAMA PADDING
+              child: Column(
+                /// < NARX, NOM, REYTING VA TUGMA
+                crossAxisAlignment: CrossAxisAlignment.start,
+
+                /// < CHAPGA TEKSHIRISH
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+                /// < TENG TAQSIMLASH
+                children: [
+                  Row(
+                    /// < NARX VA CHEGIRMA
+                    children: [
+                      Flexible(
+                        /// < NARX UCHUN MOSLASHAYDIGAN KONTEYNER
+                        fit: FlexFit.loose,
+
+                        /// < MOSLASHISH REJIMI
+                        child: Text(
+                          /// < JORIY NARX
+                          '${p['price']} UZS',
+
+                          /// < NARX MATNI
+                          maxLines: 1,
+
+                          /// < 1 QATOR
+                          overflow: TextOverflow.ellipsis,
+
+                          /// < ORTIQCHA MATN NI ... QILISH
+                          style: const TextStyle(
+                            color: Colors.pinkAccent,
+
+                            /// < NARX RANGI
+                            fontWeight: FontWeight.w900,
+
+                            /// < NARX QALINLIGI
+                            fontSize: 16,
+
+                            /// < NARX O'LCHAMI
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+
+                      /// < NARXLAR ORASIDAGI MASOFA
+                      if (p['oldPrice'] != null) ...[
+                        /// < ESKI NARX MAVJUD BO'LSA
+                        Flexible(
+                          /// < ESKI NARX UCHUN MOSLASHAYDIGAN KONTEYNER
+                          fit: FlexFit.loose,
+
+                          /// < MOSLASHISH REJIMI
+                          child: Text(
+                            /// < ESKI NARX
+                            '${p['oldPrice']}',
+
+                            /// < ESKI NARX MATNI
+                            maxLines: 1,
+
+                            /// < 1 QATOR
+                            overflow: TextOverflow.ellipsis,
+
+                            /// < ORTIQCHA MATN NI ... QILISH
+                            style: const TextStyle(
+                              color: Colors.white24,
+
+                              /// < ESKI NARX RANGI
+                              decoration: TextDecoration.lineThrough,
+
+                              /// < CHIZIQ
+                              fontSize: 12,
+
+                              /// < ESKI NARX O'LCHAMI
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+
+                        /// < NARX VA CHEGIRMA ORASIDAGI MASOFA
+                        ConstrainedBox(
+                          /// < CHEGIRMA FOIZI UCHUN KONTEYNER
+                          constraints: const BoxConstraints(
+                            minWidth: 40,
+
+                            /// < MINIMAL ENI
+                            maxWidth: 80,
+
+                            /// < MAKSIMAL ENI
+                          ),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              /// < CHEGIRMA UCHUN PADDING
+                              horizontal: 6,
+
+                              /// < GORIZONTAL PADDING
+                              vertical: 2,
+
+                              /// < VERTIKAL PADDING
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white12,
+
+                              /// < CHEGIRMA FON RANGI
+                              borderRadius: BorderRadius.circular(6),
+
+                              /// < CHEGIRMA BURCHAK RADIUSI
+                            ),
+                            child: Text(
+                              /// < CHEGIRMA FOIZI
+                              '-${p['discount']}%',
+
+                              /// < CHEGIRMA MATNI
+                              style: const TextStyle(
+                                color: Colors.white,
+
+                                /// < CHEGIRMA MATN RANGI
+                                fontSize: 12,
+
+                                /// < CHEGIRMA MATN O'LCHAMI
+                              ),
+                              maxLines: 1,
+
+                              /// < 1 QATOR
+                              overflow: TextOverflow.ellipsis,
+
+                              /// < ORTIQCHA MATN NI ... QILISH
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+
+                  // MAHSULOT NOMI
+                  Text(
+                    /// < MAHSULOT NOMI
+                    p['name'] ?? '',
+
+                    /// < NOMI
+                    maxLines: 2,
+
+                    /// < MAKSIMUM 2 QATOR
+                    overflow: TextOverflow.ellipsis,
+
+                    /// < ORTIQCHA MATN NI ... QILISH
+                    style: const TextStyle(
+                      color: Colors.white70,
+
+                      /// < NOM RANGI
+                      fontSize: 15,
+
+                      /// < NOM O'LCHAMI
+                      fontWeight: FontWeight.w600,
+
+                      /// < NOM QALINLIGI
+                    ),
+                  ),
+
+                  // REYTING VA SOTIB OLISH TUGMASI
+                  Row(
+                    /// < REYTING VA TUGMA
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+                    /// < ORASIDA MASOFA
+                    children: [
+                      Row(
+                        /// < REYTING VA YULDUZCHALAR
+                        children: [
+                          const Icon(Icons.star, color: Colors.amber, size: 14),
+
+                          /// < YULDUZ ICONI
+                          const SizedBox(width: 4),
+
+                          /// < YULDUZ VA REYTING ORASIDAGI MASOFA
+                          Text(
+                            /// < REYTING QIYMATI
+                            '${p['rating'] ?? ''}',
+
+                            /// < REYTING
+                            style: const TextStyle(
+                              color: Colors.white,
+
+                              /// < REYTING RANGI
+                              fontSize: 12,
+
+                              /// < REYTING O'LCHAMI
+                            ),
+                          ),
+                        ],
+                      ),
+                      ElevatedButton(
+                        /// < SOTIB OLISH TUGMASI
+                        onPressed: () => widget.onAddToCart(p),
+
+                        /// < TUGMA BOSILGANDA
+                        style: ElevatedButton.styleFrom(
+                          /// < TUGMA STILI
+                          backgroundColor: Colors.pinkAccent,
+
+                          /// < TUGMA RANGI
+                          padding: const EdgeInsets.symmetric(
+                            /// < TUGMA PADDING
+                            horizontal: 10,
+
+                            /// < GORIZONTAL PADDING
+                            vertical: 6,
+
+                            /// < VERTIKAL PADDING
+                          ),
+                          shape: RoundedRectangleBorder(
+                            /// < TUGMA SHAKLI
+                            borderRadius: BorderRadius.circular(8),
+
+                            /// < TUGMA BURCHAK RADIUSI
+                          ),
+                        ),
+                        child: const Text(
+                          /// < TUGMA MATNI
+                          'Купить',
+
+                          /// < "SOTIB OLISH"
+                          style: TextStyle(color: Colors.black),
+
+                          /// < MATN RANGI
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    /// < ASOSIY BUILD METODI
+    final brightness = Theme.of(context).brightness;
+
+    /// < TEMA YORUG'LIGINI OLISH
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      /// < STATUS BAR SOZLASH
+      value: SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+
+        /// < STATUS BAR SHaffOF
+        statusBarIconBrightness: brightness == Brightness.dark
+            /// < STATUS BAR ICON RANGI
+            ? Brightness.light
+            /// < OQ
+            : Brightness.dark,
+
+        /// < QORA
+      ),
+      child: Scaffold(
+  /// < ASOSIY SCAFFOLD
+  resizeToAvoidBottomInset: false,
+
+  /// < KLAVIATURA PAYTIDA SIKRLASHNI OLDINI OLISH
+  backgroundColor: Colors.transparent,
+
+  /// < Сделать фон прозрачным — основной градиент задаётся в `HomeScreen`
+  /// чтобы фон всех вкладок был единым и совпадал с навигационной панелью.
+        body: SafeArea(
+          /// < XAVFSIZ ZONA
+          top: false,
+
+          /// < YUQORI SAFE AREA NI O'CHIRISH
+          bottom: false,
+
+          /// < PASTKI SAFE AREA NI O'CHIRISH
+          child: Builder(
+            builder: (context) {
+              return Stack(
+                /// < CONTENT UCHUN STACK
+                children: [
+                  CustomScrollView(
+                    /// < SIKRLANADIGAN CONTENT
+                    slivers: [
+                      ...widget.showHeader ? [
+                        SliverAppBar(
+                          /// < YUQORI APPBAR
+                          backgroundColor: Colors.transparent,
+
+                          /// < FONNI SHaffOF QILISH
+                          expandedHeight: 140,
+
+                          /// < KENGAYGAN BALANDLIK
+                          collapsedHeight: 140,
+
+                          /// < QISQARGAN BALANDLIK
+                          pinned: true,
+
+                          /// < DOIM KO'RINISHI
+                          elevation: 0,
+
+                          /// < SOYA YO'Q
+                          flexibleSpace: ClipRRect(
+                            borderRadius: const BorderRadius.vertical(
+                              bottom: Radius.circular(20),
+                            ),
+                            child: Container(
+                              decoration: const BoxDecoration(gradient: kAppGradient),
+                              child: Padding(
+                                padding: EdgeInsets.only(
+                                  top: MediaQuery.of(context).padding.top + 10,
+                                  left: 12,
+                                  right: 12,
+                                  bottom: 16,
+                                ),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    LayoutBuilder(
+                                      /// < MAVJUD ENNI OLISH
+                                      builder: (context, constraints) {
+                                        const avatarSize = 36.0;
+
+                                        /// < AVATAR O'LCHAMI
+                                        const spacing = 6.0;
+
+                                        /// < MASOFA
+                                        final maxTitleWidth =
+                                            /// < MAKSIMUM Sarlavha ENI
+                                            (constraints.maxWidth -
+                                                    avatarSize -
+                                                    spacing)
+                                                .clamp(0.0, double.infinity);
+                                        return Row(
+                                          /// < Sarlavha va avatar
+                                          children: [
+                                            Expanded(
+                                              /// < Sarlavha uchun kengaytirilgan joy
+                                              child: ConstrainedBox(
+                                                /// < Sarlavhani chegaralash
+                                                constraints: BoxConstraints(
+                                                  maxWidth: maxTitleWidth,
+
+                                                  /// < MAKSIMUM EN
+                                                ),
+                                                child: Text(
+                                                  /// < Sarlavha matni
+                                                  'Oson Market',
+
+                                                  /// < DO'KON NOMI
+                                                  maxLines: 1,
+
+                                                  /// < 1 QATOR
+                                                  overflow: TextOverflow.ellipsis,
+
+                                                  /// < ORTIQCHA MATN NI ... QILISH
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+
+                                                    /// < MATN RANGI
+                                                    fontSize: 28,
+
+                                                    /// < MATN O'LCHAMI
+                                                    fontFamily: 'Gagalin',
+
+                                                    /// < MATN SHRIFTI
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(width: spacing),
+
+                                            /// < Sarlavha va avatar orasidagi masofa
+                                            SizedBox(
+                                              /// < AVATAR KONTEYNERI
+                                              width: avatarSize,
+
+                                              /// < AVATAR ENI
+                                              height: avatarSize,
+
+                                              /// < AVATAR BALANDLIGI
+                                              child: CircleAvatar(
+                                                /// < DOIRA AVATAR
+                                                radius: avatarSize / 2,
+
+                                                /// < AVATAR RADIUSI
+                                                backgroundColor: Colors.white24,
+
+                                                /// < AVATAR FON RANGI
+                                                child: const Icon(
+                                                  /// < AVATAR ICONI
+                                                  Icons.person,
+
+                                                  /// < ODAM ICONI
+                                                  color: Colors.white,
+
+                                                  /// < ICON RANGI
+                                                  size: 18,
+
+                                                  /// < ICON O'LCHAMI
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 8),
+
+                                            /// < AVATAR VA TEMA TUGMASI ORASIDAGI MASOFA
+                                            PopupMenuButton<ThemeMode>(
+                                              /// < TEMA SOZLASH TUGMASI
+                                              color: Colors.white,
+
+                                              /// < MENYU RANGI
+                                              icon: const Icon(
+                                                /// < TEMA ICONI
+                                                Icons.brightness_6,
+
+                                                /// < YORUG'LIK ICONI
+                                                color: Colors.white,
+
+                                                /// < ICON RANGI
+                                              ),
+                                              onSelected: (mode) {
+                                                /// < TEMA TANLANGANDA
+                                                // appThemeMode.value = mode;  /// < TEMA O'ZGARTIRISH (KOMMENT)
+                                              },
+                                              itemBuilder: (ctx) {
+                                                /// < MENYU ELEMENTLARI
+                                                return [
+                                                  const PopupMenuItem(
+                                                    /// < TIZIM TEMASI
+                                                    value: ThemeMode.system,
+                                                    child: Text('System'),
+
+                                                    /// < "TIZIM"
+                                                  ),
+                                                  const PopupMenuItem(
+                                                    /// < OCHIQ TEMA
+                                                    value: ThemeMode.light,
+                                                    child: Text('Light'),
+
+                                                    /// < "OCHIQ"
+                                                  ),
+                                                  const PopupMenuItem(
+                                                    /// < QORONG'U TEMA
+                                                    value: ThemeMode.dark,
+                                                    child: Text('Dark'),
+
+                                                    /// < "QORONG'U"
+                                                  ),
+                                                ];
+                                              },
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    ),
+                                    const SizedBox(height: 12),
+
+                                    /// < Sarlavha va qidiruv orasidagi masofa
+                                    SizedBox(
+                                      height: 40,
+
+                                      /// < QIDIRUV BALANDLIGI
+                                      child: Container(
+                                        /// < QIDIRUV PANELI
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(12),
+
+                                          /// < QIDIRUV BURCHAK RADIUSI
+                                          color: Colors.white,
+
+                                          /// < QIDIRUV FON RANGI
+                                          boxShadow: [
+                                            /// < QIDIRUV SOYA EFEKTI
+                                            BoxShadow(
+                                              color: Colors.black.withAlpha(
+                                                /// < SOYA RANGI
+                                                (0.1 * 255).round(),
+                                              ),
+                                              blurRadius: 6,
+
+                                              /// < SOYA XIRA
+                                              offset: const Offset(0, 2),
+
+                                              /// < SOYA JOYLASHUVI
+                                            ),
+                                          ],
+                                        ),
+                                        child: TextField(
+                                          /// < QIDIRUV MAYDONI
+                                          decoration: InputDecoration(
+                                            isDense: true,
+
+                                            /// < QISQARTIRILGAN O'LCHAM
+                                            contentPadding:
+                                                /// < MATN PADDING
+                                                const EdgeInsets.symmetric(
+                                                  vertical: 8,
+
+                                                  /// < VERTIKAL PADDING
+                                                  horizontal: 12,
+
+                                                  /// < GORIZONTAL PADDING
+                                                ),
+                                            hintText: 'Искать',
+
+                                            /// < QIDIRUV YO'RIQNOMASI
+                                            prefixIcon: const Icon(
+                                              /// < QIDIRUV ICONI
+                                              Icons.search,
+
+                                              /// < QIDIRUV ICONI
+                                              size: 20,
+
+                                              /// < ICON O'LCHAMI
+                                            ),
+                                            filled: true,
+
+                                            /// < FON TO'LDIRISH
+                                            fillColor: Colors.white,
+
+                                            /// < FON RANGI
+                                            border: OutlineInputBorder(
+                                              /// < CHEGARA
+                                              borderRadius: BorderRadius.circular(
+                                                /// < CHEGARA BURCHAK RADIUSI
+                                                12,
+                                              ),
+                                              borderSide: BorderSide.none,
+
+                                              /// < CHEGARA YO'Q
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ] : [
+                        const SliverToBoxAdapter(
+                          child: SizedBox(height: 16),
+                        )
+                      ],
+
+                      // QORONG'U PANEL - BANNER, KATEGORIYALAR VA NARXLAR
+                      SliverToBoxAdapter(
+                        /// < SLIVER ICHIDA WIDGET
+                        child: Transform.translate(
+                          /// < PANELNI YUQORIGA KO'TARISH
+                          offset: widget.showHeader
+                              ? const Offset(0, -8)
+                              : Offset.zero,
+
+                          /// < -8 PX YUQORIGA
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+
+                            /// < PASTKI PADDING
+                              child: ClipRRect(
+                                borderRadius: const BorderRadius.vertical(
+                                  bottom: Radius.circular(20),
+                                ),
+                                child: Container(
+                                  decoration: const BoxDecoration(gradient: kAppGradient),
+
+                                /// < PANEL FON RANGI — сделать таким же, как у нижней навигации
+                                child: Column(
+                                  /// < BANNER, KATEGORIYALAR VA NARXLAR
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+
+                                  /// < BUTUN ENNI EGALLASH
+                                  children: [
+                                    // BANNER
+                                    LayoutBuilder(
+                                      builder: (ctx, constraints) {
+                                        final isWide =
+                                            constraints.maxWidth >= 600.0;
+
+                                        /// < KENG EKRAN TEKSHIRISH
+                                        final top = isWide ? 12.0 : 0.0;
+
+                                        /// < KENG EKRANDA YUQORI PADDING
+                                        return Padding(
+                                          padding: EdgeInsets.fromLTRB(
+                                            /// < BANNER PADDING
+                                            0,
+
+                                            /// < CHAP
+                                            top,
+
+                                            /// < YUQORI
+                                            0,
+
+                                            /// < O'NG
+                                            12,
+
+                                            /// < PASTKI
+                                          ),
+                                          child: _banner(),
+
+                                          /// < BANNER WIDGETI
+                                        );
+                                      },
+                                    ),
+
+                                    // KATEGORIYALAR QATORI
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        /// < KATEGORIYALAR PADDING
+                                        horizontal: 0,
+
+                                        /// < YON PADDING YO'Q
+                                      ),
+                                      child: _categoriesRow(),
+
+                                      /// < KATEGORIYALAR WIDGETI
+                                    ),
+
+                                    // AJOYIB NARXLAR BO'LIMI
+                                    Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                        /// < NARXLAR PADDING
+                                        0,
+
+                                        /// < CHAP
+                                        12,
+
+                                        /// < YUQORI
+                                        0,
+
+                                        /// < O'NG
+                                        12,
+
+                                        /// < PASTKI
+                                      ),
+                                      child: _wowPrices(context),
+
+                                      /// < NARXLAR WIDGETI
+                                    ),
+                                  ],
+                                ),
+                                ),
+                              ),
+                          ),
+                        ),
+                      ),
+
+                      // MAHSULOTLAR PANELI
+                      SliverPadding(
+                        /// < MAHSULOTLAR UCHUN PADDING
+                        padding: const EdgeInsets.symmetric(
+                          /// < MAHSULOTLAR PADDING
+                          horizontal: 12,
+
+                          /// < YON PADDING
+                          vertical: 12,
+
+                          /// < VERTIKAL PADDING
+                        ),
+                        sliver: SliverGrid(
+                          /// < MAHSULOTLAR PANELI
+                          delegate: SliverChildBuilderDelegate(
+                            /// < MAHSULOTLAR RO'YXATI
+                            (ctx, i) => _productCard(widget.products[i]),
+
+                            /// < HAR BIR MAHSULOT UCHUN KARTA
+                            childCount: widget.products.length,
+
+                            /// < MAHSULOTLAR SONI
+                          ),
+                          gridDelegate:
+                              /// < GRID SOZLASH
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+
+                                /// < 2 TA USTUN
+                                mainAxisSpacing: 12,
+
+                                /// < VERTIKAL MASOFA
+                                crossAxisSpacing: 12,
+
+                                /// < GORIZONTAL MASOFA
+                                childAspectRatio: 0.4493,
+
+                                /// < KARTA NISBATI
+                              ),
+                        ),
+                      ),
+
+                      // PASTKI BO'SH JOY
+                      SliverToBoxAdapter(child: const SizedBox(height: 20)),
+
+                      /// < PASTKI PADDING
+                    ],
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+}
