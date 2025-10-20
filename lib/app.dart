@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'screens/home_screen.dart';
+import 'screens/language_provider.dart';
+import 'package:provider/provider.dart';
 import 'l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 // Use local Montserrat font declared in pubspec.yaml
@@ -47,113 +49,123 @@ class OsonMarketApp extends StatelessWidget {
     return ValueListenableBuilder<ThemeMode>(
       valueListenable: appThemeMode,
       builder: (context, mode, _) {
-        return MaterialApp(
-          themeMode: mode,
-          title: 'OSON MARKET',
-          localizationsDelegates: [
-            const AppLocalizationsDelegate(),
-            // Built-in localization of basic text for Material widgets
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: const [Locale('en'), Locale('ru'), Locale('uz')],
-          debugShowCheckedModeBanner: false,
-          theme: base.copyWith(
-            colorScheme: colorScheme,
-            textTheme: textTheme,
-            primaryColor: Colors.pink,
-            scaffoldBackgroundColor: Colors.grey.shade50,
-            appBarTheme: AppBarTheme(
-              backgroundColor: Colors.white,
-              foregroundColor: Colors.black87,
-              elevation: 0.5,
-              centerTitle: true,
-              toolbarHeight: 56,
-              iconTheme: const IconThemeData(color: Colors.black87),
-              titleTextStyle: textTheme.titleLarge?.copyWith(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: Colors.black87,
-              ),
-            ),
-            bottomNavigationBarTheme: BottomNavigationBarThemeData(
-              backgroundColor: Colors.white,
-              selectedItemColor: colorScheme.primary,
-              unselectedItemColor: Colors.grey.shade600,
-              selectedLabelStyle: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-              ),
-              unselectedLabelStyle: const TextStyle(fontSize: 12),
-              elevation: 6,
-              type: BottomNavigationBarType.fixed,
-            ),
-            elevatedButtonTheme: ElevatedButtonThemeData(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: primaryColor,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+        return ChangeNotifierProvider<LanguageProvider>(
+          create: (_) => LanguageProvider()..loadLanguage(),
+          child: Consumer<LanguageProvider>(
+            builder: (context, lang, __) => MaterialApp(
+              themeMode: mode,
+              title: 'OSON MARKET',
+              localizationsDelegates: [
+                const AppLocalizationsDelegate(),
+                // Built-in localization of basic text for Material widgets
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              locale: lang.currentLocale,
+              supportedLocales: const [
+                Locale('en'),
+                Locale('ru'),
+                Locale('uz'),
+              ],
+              debugShowCheckedModeBanner: false,
+              theme: base.copyWith(
+                colorScheme: colorScheme,
+                textTheme: textTheme,
+                primaryColor: Colors.pink,
+                scaffoldBackgroundColor: Colors.grey.shade50,
+                appBarTheme: AppBarTheme(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black87,
+                  elevation: 0.5,
+                  centerTitle: true,
+                  toolbarHeight: 56,
+                  iconTheme: const IconThemeData(color: Colors.black87),
+                  titleTextStyle: textTheme.titleLarge?.copyWith(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black87,
+                  ),
                 ),
-                padding: const EdgeInsets.symmetric(vertical: 12),
-              ),
-            ),
-            outlinedButtonTheme: OutlinedButtonThemeData(
-              style: OutlinedButton.styleFrom(
-                foregroundColor: primaryColor,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                bottomNavigationBarTheme: BottomNavigationBarThemeData(
+                  backgroundColor: Colors.white,
+                  selectedItemColor: colorScheme.primary,
+                  unselectedItemColor: Colors.grey.shade600,
+                  selectedLabelStyle: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  unselectedLabelStyle: const TextStyle(fontSize: 12),
+                  elevation: 6,
+                  type: BottomNavigationBarType.fixed,
+                ),
+                elevatedButtonTheme: ElevatedButtonThemeData(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColor,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                ),
+                outlinedButtonTheme: OutlinedButtonThemeData(
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: primaryColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+                inputDecorationTheme: InputDecorationTheme(
+                  filled: true,
+                  fillColor: Colors.white,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 14,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
               ),
-            ),
-            inputDecorationTheme: InputDecorationTheme(
-              filled: true,
-              fillColor: Colors.white,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 14,
+              // Mirror AppBar / BottomNavigationBar styles in dark theme so these
+              // components visually remain the same regardless of themeMode.
+              darkTheme: base.copyWith(
+                colorScheme: colorScheme.copyWith(brightness: Brightness.dark),
+                textTheme: textTheme,
+                primaryColor: Colors.pink,
+                scaffoldBackgroundColor: const Color(0xFF0F0F10),
+                appBarTheme: AppBarTheme(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black87,
+                  elevation: 0.5,
+                  centerTitle: true,
+                  toolbarHeight: 56,
+                  iconTheme: const IconThemeData(color: Colors.black87),
+                  titleTextStyle: textTheme.titleLarge?.copyWith(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black87,
+                  ),
+                ),
+                bottomNavigationBarTheme: BottomNavigationBarThemeData(
+                  backgroundColor: Colors.white,
+                  selectedItemColor: colorScheme.primary,
+                  unselectedItemColor: Colors.grey.shade600,
+                  selectedLabelStyle: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  unselectedLabelStyle: const TextStyle(fontSize: 12),
+                  elevation: 6,
+                  type: BottomNavigationBarType.fixed,
+                ),
               ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide.none,
-              ),
+              home: const _AnimatedSplash(),
             ),
           ),
-          // Mirror AppBar / BottomNavigationBar styles in dark theme so these
-          // components visually remain the same regardless of themeMode.
-          darkTheme: base.copyWith(
-            colorScheme: colorScheme.copyWith(brightness: Brightness.dark),
-            textTheme: textTheme,
-            primaryColor: Colors.pink,
-            scaffoldBackgroundColor: const Color(0xFF0F0F10),
-            appBarTheme: AppBarTheme(
-              backgroundColor: Colors.white,
-              foregroundColor: Colors.black87,
-              elevation: 0.5,
-              centerTitle: true,
-              toolbarHeight: 56,
-              iconTheme: const IconThemeData(color: Colors.black87),
-              titleTextStyle: textTheme.titleLarge?.copyWith(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: Colors.black87,
-              ),
-            ),
-            bottomNavigationBarTheme: BottomNavigationBarThemeData(
-              backgroundColor: Colors.white,
-              selectedItemColor: colorScheme.primary,
-              unselectedItemColor: Colors.grey.shade600,
-              selectedLabelStyle: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-              ),
-              unselectedLabelStyle: const TextStyle(fontSize: 12),
-              elevation: 6,
-              type: BottomNavigationBarType.fixed,
-            ),
-          ),
-          home: const _AnimatedSplash(),
         );
       },
     );
@@ -184,8 +196,9 @@ class _AnimatedSplashState extends State<_AnimatedSplash>
     _ctl.forward();
     _navigationTimer = Timer(const Duration(milliseconds: 1100), () {
       if (!mounted) return;
-      Navigator.of(context)
-          .pushReplacement(MaterialPageRoute(builder: (_) => const HomeScreen()));
+      Navigator.of(
+        context,
+      ).pushReplacement(MaterialPageRoute(builder: (_) => const HomeScreen()));
     });
   }
 

@@ -3,6 +3,7 @@ import '../data/data.dart';
 import 'home_screen_content.dart' as content;
 import '../services/cart_service.dart';
 import 'cart_screen.dart';
+import 'profile_screen.dart';
 import '../core/theme.dart';
 import '../widgets/search_bar.dart';
 // Removed settings/theme toggler; no appThemeMode import needed
@@ -134,16 +135,7 @@ class _HomeScreenState extends State<HomeScreen> {
       // Cart tab wrapped in shell
       screenShell(child: const CartContent(embedded: true)),
       // Profile tab wrapped in shell
-      screenShell(
-        child: const SafeArea(
-          child: Center(
-            child: Text(
-              'Профиль (скоро)',
-              style: TextStyle(color: Colors.white, fontSize: 18),
-            ),
-          ),
-        ),
-      ),
+      screenShell(child: const ProfileScreen()),
     ];
 
     return Scaffold(
