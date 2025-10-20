@@ -41,28 +41,19 @@ class _HomeScreenState extends State<HomeScreen> {
     // Shell used to render header + search + content so AppBar and search appear on every tab
     Widget screenShell({required Widget child}) {
       // Only keep a pinned search bar at the top (removed YA MARKET header panel)
-      return Container(
-        decoration: const BoxDecoration(gradient: kAppGradient),
-        child: CustomScrollView(
-          slivers: [
-            SliverAppBar(
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              pinned: true,
-              toolbarHeight: 72,
-              flexibleSpace: ClipRRect(
-                borderRadius: const BorderRadius.vertical(
-                  bottom: Radius.circular(20),
-                ),
-                child: Container(
-                  decoration: const BoxDecoration(gradient: kAppGradient),
-                  child: const SafeArea(bottom: false, child: AppSearchBar()),
-                ),
+      return CustomScrollView(
+        slivers: [
+          const SliverToBoxAdapter(
+            child: SafeArea(
+              bottom: false,
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(12, 10, 12, 8),
+                child: AppSearchBar(),
               ),
             ),
-            SliverFillRemaining(hasScrollBody: true, child: child),
-          ],
-        ),
+          ),
+          SliverFillRemaining(hasScrollBody: true, child: child),
+        ],
       );
     }
 
@@ -120,6 +111,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 title: Text(
                   categories[i]['name'],
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(color: Colors.white),
                 ),
                 onTap: () => ScaffoldMessenger.of(context).showSnackBar(

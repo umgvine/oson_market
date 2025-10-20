@@ -23,13 +23,23 @@ class AppSearchBar extends StatelessWidget {
         style: const TextStyle(fontSize: 15),
         decoration: InputDecoration(
           isDense: true,
-          contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-          hintText: 'Искать на OSON',
-          hintStyle: TextStyle(color: Colors.black.withAlpha((0.55 * 255).round()), fontSize: 15, fontWeight: FontWeight.w500),
+          contentPadding: const EdgeInsets.symmetric(
+            vertical: 8,
+            horizontal: 12,
+          ),
+          hintText: 'YA Market’da qidirish',
+          hintStyle: TextStyle(
+            color: Colors.black.withAlpha((0.55 * 255).round()),
+            fontSize: 15,
+            fontWeight: FontWeight.w500,
+          ),
           prefixIcon: const Icon(Icons.search, size: 20),
           filled: true,
           fillColor: Colors.white,
-          border: const OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12)), borderSide: BorderSide.none),
+          border: const OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(12)),
+            borderSide: BorderSide.none,
+          ),
         ),
       ),
     );

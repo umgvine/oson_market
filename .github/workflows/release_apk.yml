@@ -32,7 +32,6 @@ jobs:
         run: flutter pub get
 
       - name: Configure Android signing (optional)
-        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
@@ -40,6 +39,10 @@ jobs:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
         run: |
           set -e
+          if [ -z "${ANDROID_KEYSTORE_BASE64}" ]; then
+            echo "No ANDROID_KEYSTORE_BASE64 secret provided. Skipping signing setup."
+            exit 0
+          fi
           echo "Setting up keystore from secret"
           mkdir -p android/app
           echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/app/upload-keystore.jks

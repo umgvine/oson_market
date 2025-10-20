@@ -273,71 +273,71 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
   }
 
   Widget _wowPrices(BuildContext context) {
-    final sample = widget.products.take(4).toList();
-    return SizedBox(
+    // Show exactly three items with no scrolling.
+    final sample = widget.products.take(3).toList(growable: false);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: Row(
+        children: [
+          for (int i = 0; i < sample.length; i++) ...[
+            Expanded(child: _wowCard(sample[i])),
+            if (i != sample.length - 1) const SizedBox(width: 12),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _wowCard(Map<String, dynamic> p) {
+    return Container(
       height: 110,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        itemCount: sample.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 12),
-        itemBuilder: (ctx, i) {
-          final p = sample[i];
-          return Container(
-            width: 220,
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: const Color(0xFF171718),
-              borderRadius: BorderRadius.circular(12),
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: const Color(0xFF171718),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.asset(
+              p['img'] as String,
+              width: 72,
+              height: 72,
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) =>
+                  Container(color: Colors.grey.shade800, width: 72, height: 72),
             ),
-            child: Row(
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.asset(
-                    p['img'] as String,
-                    width: 72,
-                    height: 72,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
-                      color: Colors.grey.shade800,
-                      width: 72,
-                      height: 72,
-                    ),
+                Text(
+                  p['name'] ?? '',
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        p['name'] ?? '',
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        '${p['price']} UZS',
-                        style: const TextStyle(
-                          color: Colors.pinkAccent,
-                          fontWeight: FontWeight.w900,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
+                const SizedBox(height: 6),
+                Text(
+                  '${p['price']} UZS',
+                  style: const TextStyle(
+                    color: Colors.pinkAccent,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 14,
                   ),
                 ),
               ],
             ),
-          );
-        },
+          ),
+        ],
       ),
     );
   }
