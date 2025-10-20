@@ -4,9 +4,8 @@ import 'home_screen_content.dart' as content;
 import '../services/cart_service.dart';
 import 'cart_screen.dart';
 import '../core/theme.dart';
-import '../widgets/header_bar.dart';
 import '../widgets/search_bar.dart';
-import '../app.dart' show appThemeMode; // For theme mode control
+// Removed settings/theme toggler; no appThemeMode import needed
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -22,94 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _activeCategory;
   String? _activeSubcategory;
 
-  void _openSettingsSheet() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) {
-        final theme = Theme.of(context);
-        final current = appThemeMode.value;
-        Widget tile(ThemeMode mode, String label, IconData icon) {
-          final selected = current == mode;
-          return ListTile(
-            leading: Icon(
-              icon,
-              color: selected ? theme.colorScheme.primary : Colors.white70,
-            ),
-            title: Text(
-              label,
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
-              ),
-            ),
-            trailing: selected
-                ? const Icon(Icons.check_circle, color: Colors.white)
-                : const Icon(
-                    Icons.circle_outlined,
-                    color: Colors.white38,
-                    size: 20,
-                  ),
-            onTap: () {
-              appThemeMode.value = mode;
-              Navigator.pop(ctx);
-            },
-          );
-        }
-
-        return Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFF312E81), Color(0xFF6D28D9)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          child: SafeArea(
-            top: false,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const SizedBox(height: 8),
-                Container(
-                  width: 46,
-                  height: 5,
-                  decoration: BoxDecoration(
-                    color: Colors.white24,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                const Text(
-                  'Настройки',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                tile(ThemeMode.system, 'Системная тема', Icons.phone_android),
-                tile(ThemeMode.light, 'Светлая тема', Icons.light_mode),
-                tile(ThemeMode.dark, 'Тёмная тема', Icons.dark_mode),
-                const Divider(color: Colors.white24, height: 1),
-                ListTile(
-                  leading: const Icon(Icons.translate, color: Colors.white70),
-                  title: const Text(
-                    'Язык (скоро)',
-                    style: TextStyle(color: Colors.white70),
-                  ),
-                  onTap: () {},
-                ),
-                const SizedBox(height: 8),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
+  // Settings sheet removed along with the old header panel
 
   @override
   void initState() {
@@ -127,7 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // Shell used to render header + search + content so AppBar and search appear on every tab
     Widget screenShell({required Widget child}) {
-      // Use a CustomScrollView with a pinned header so search stays on top when scrolling
+      // Only keep a pinned search bar at the top (removed OSON MARKET header panel)
       return Container(
         decoration: const BoxDecoration(gradient: kAppGradient),
         child: CustomScrollView(
@@ -136,16 +48,15 @@ class _HomeScreenState extends State<HomeScreen> {
               backgroundColor: Colors.transparent,
               elevation: 0,
               pinned: true,
-              toolbarHeight: 60,
-              flexibleSpace: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  HeaderBar(
-                    onProfile: () => setState(() => _currentIndex = 3),
-                    onSettings: _openSettingsSheet,
-                  ),
-                  const AppSearchBar(),
-                ],
+              toolbarHeight: 72,
+              flexibleSpace: ClipRRect(
+                borderRadius: const BorderRadius.vertical(
+                  bottom: Radius.circular(20),
+                ),
+                child: Container(
+                  decoration: const BoxDecoration(gradient: kAppGradient),
+                  child: const SafeArea(bottom: false, child: AppSearchBar()),
+                ),
               ),
             ),
             SliverFillRemaining(hasScrollBody: true, child: child),
