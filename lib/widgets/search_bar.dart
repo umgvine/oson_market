@@ -10,10 +10,11 @@ class AppSearchBar extends StatelessWidget {
       height: 44,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: Colors.white,
+        // Make the search bar semi-transparent (shafof)
+        color: Colors.white.withOpacity(0.12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha((0.1 * 255).round()),
+            color: Colors.black.withOpacity(0.06),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
@@ -29,13 +30,14 @@ class AppSearchBar extends StatelessWidget {
           ),
           hintText: 'YA Market’da qidirish',
           hintStyle: TextStyle(
-            color: Colors.black.withAlpha((0.55 * 255).round()),
+            color: Colors.white70,
             fontSize: 15,
             fontWeight: FontWeight.w500,
           ),
-          prefixIcon: const Icon(Icons.search, size: 20),
+          prefixIcon: const Icon(Icons.search, size: 20, color: Colors.white70),
           filled: true,
-          fillColor: Colors.white,
+          // Match the container's semi-transparent fill
+          fillColor: Colors.white.withOpacity(0.06),
           border: const OutlineInputBorder(
             borderRadius: BorderRadius.all(Radius.circular(12)),
             borderSide: BorderSide.none,

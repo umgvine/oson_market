@@ -24,7 +24,8 @@ class HomeScreenContent extends StatefulWidget {
 
 class _HomeScreenContentState extends State<HomeScreenContent> {
   final PageController _bannerController = PageController(
-    viewportFraction: 0.98,
+    // Use full page width to keep outer frame static while inner page changes
+    viewportFraction: 1.0,
   );
   int _bannerIndex = 0;
   Timer? _bannerTimer;
