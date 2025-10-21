@@ -4,7 +4,6 @@ import 'home_screen_content.dart' as content;
 import '../services/cart_service.dart';
 import 'cart_screen.dart';
 import 'profile_screen.dart';
-import '../core/theme.dart';
 import '../widgets/search_bar.dart';
 // Removed settings/theme toggler; no appThemeMode import needed
 
@@ -134,7 +133,8 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Container(
-        decoration: const BoxDecoration(gradient: kAppGradient),
+        // Use a solid blue background instead of the pink↔blue gradient
+        color: const Color(0xFF3B82F6),
         child: Stack(
           children: [
             tabs[_currentIndex],
@@ -198,7 +198,7 @@ class _HomeScreenState extends State<HomeScreen> {
           return Container(
             height: 76 + MediaQuery.of(context).padding.bottom,
             decoration: BoxDecoration(
-              gradient: kAppGradient,
+              color: const Color(0xFF3B82F6),
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(24),
                 topRight: Radius.circular(24),
