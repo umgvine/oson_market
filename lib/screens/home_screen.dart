@@ -5,6 +5,7 @@ import '../services/cart_service.dart';
 import 'cart_screen.dart';
 import 'profile_screen.dart';
 import '../widgets/search_bar.dart';
+import '../l10n/app_localizations.dart';
 // Removed settings/theme toggler; no appThemeMode import needed
 
 class HomeScreen extends StatefulWidget {
@@ -20,6 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Map<String, dynamic>> _filteredProducts = [];
   String? _activeCategory;
   String? _activeSubcategory;
+  String _searchQuery = '';
 
   // Settings sheet removed along with the old header panel
 
@@ -29,6 +31,58 @@ class _HomeScreenState extends State<HomeScreen> {
     initData();
     // load persisted cart
     _cart.load().then((_) => setState(() {}));
+  }
+
+  void _handleSearch(String query) {
+    setState(() {
+      _searchQuery = query.toLowerCase().trim();
+      if (_searchQuery.isEmpty) {
+        _filteredProducts = [];
+        _activeCategory = null;
+        _activeSubcategory = null;
+      } else {
+        _filteredProducts = products.where((product) {
+          final name = product['name']?.toString().toLowerCase() ?? '';
+          final description = product['desc']?.toString().toLowerCase() ?? '';
+          final category = product['cat']?.toString().toLowerCase() ?? '';
+
+          return name.contains(_searchQuery) ||
+              description.contains(_searchQuery) ||
+              category.contains(_searchQuery);
+        }).toList();
+
+        // Reset category filters when searching
+        _activeCategory = null;
+        _activeSubcategory = null;
+
+        // Switch to home tab to show search results
+        _currentIndex = 0;
+      }
+    });
+  }
+
+  String _getSearchHint() {
+    final localizations = AppLocalizations.of(context);
+    if (_activeCategory != null) {
+      return '${localizations.translate('searchIn')} $_activeCategory...';
+    }
+    return localizations.translate('search');
+  }
+
+  List<Map<String, dynamic>> _getDisplayProducts() {
+    // If search is active, return filtered products
+    if (_searchQuery.isNotEmpty) {
+      return _filteredProducts;
+    }
+
+    // If category filter is active, return category-filtered products
+    if (_filteredProducts.isNotEmpty &&
+        (_activeCategory != null || _activeSubcategory != null)) {
+      return _filteredProducts;
+    }
+
+    // Return all products
+    return products;
   }
 
   // Columns calculation is kept in HomeScreenContent; remove to avoid unused warnings.
@@ -42,12 +96,15 @@ class _HomeScreenState extends State<HomeScreen> {
       // Only keep a pinned search bar at the top (removed YA MARKET header panel)
       return CustomScrollView(
         slivers: [
-          const SliverToBoxAdapter(
+          SliverToBoxAdapter(
             child: SafeArea(
               bottom: false,
               child: Padding(
-                padding: EdgeInsets.fromLTRB(12, 10, 12, 8),
-                child: AppSearchBar(),
+                padding: const EdgeInsets.fromLTRB(12, 10, 12, 8),
+                child: AppSearchBar(
+                  onSearchChanged: _handleSearch,
+                  hintText: _getSearchHint(),
+                ),
               ),
             ),
           ),
@@ -62,7 +119,7 @@ class _HomeScreenState extends State<HomeScreen> {
       screenShell(
         child: content.HomeScreenContent(
           showHeader: false,
-          products: _filteredProducts.isEmpty ? products : _filteredProducts,
+          products: _getDisplayProducts(),
           onAddToCart: (product) {
             _cart.add(product, 1);
             ScaffoldMessenger.of(
@@ -72,6 +129,9 @@ class _HomeScreenState extends State<HomeScreen> {
           },
           onFilter: (category, subcategory) {
             setState(() {
+              // Clear search when using category filter
+              _searchQuery = '';
+
               _activeCategory = category;
               _activeSubcategory = subcategory;
               if (subcategory != null) {

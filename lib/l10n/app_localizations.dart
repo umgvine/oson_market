@@ -26,18 +26,24 @@ class AppLocalizations {
       'openApp': 'Open app',
       'cart': 'Cart',
       'checkout': 'Checkout',
+      'search': 'Search in YA MARKET',
+      'searchIn': 'Search in',
     },
     'ru': {
       'appTitle': 'YA MARKET',
       'openApp': 'Открыть приложение',
       'cart': 'Корзина',
       'checkout': 'Оформление заказа',
+      'search': 'Поиск в YA MARKET',
+      'searchIn': 'Поиск в',
     },
     'uz': {
       'appTitle': 'YA MARKET',
       'openApp': 'Ilovani ochish',
       'cart': 'Savat',
       'checkout': 'Buyurtma',
+      'search': 'YA MARKET\'da qidirish',
+      'searchIn': 'Qidirish',
     },
   };
 
