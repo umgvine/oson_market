@@ -22,22 +22,34 @@ Quyida web (GitHub Pages) va Android APK uchun avtomatik build/deploy jarayonlar
 
 ### 2) Web deploy (GitHub Pages)
 
-Ushbu repo `/.github/workflows/deploy_web.yml` workflow’ini o‘z ichiga oladi:
+Ushbu repo `/.github/workflows/deploy-pages.yml` workflow’idan foydalanadi (GitHub Pages “GitHub Actions” manbasi orqali):
 
 - `main` branchga push qilinganda:
-  - `flutter test` ishga tushadi
-  - `flutter build web` bajariladi
-  - Natija `gh-pages` branch’ga publish qilinadi
+  - (ixtiyoriy) testlar
+  - `flutter build web` (to‘g‘ri `--base-href` bilan)
+  - Pages artifact sifatida yuklanadi va `actions/deploy-pages` orqali deploy qilinadi (alohida `gh-pages` branch ishlatilmaydi)
 
 Custom domen uchun Settings → Secrets and variables → Actions → Variables bo‘limida `PAGES_CNAME` nomli variable yarating va domeningizni kiriting (masalan, `shop.example.uz`). Workflow `CNAME` faylini avtomatik qo‘shadi.
 
 GitHub Pages ni yoqish:
 
 1. Repo Settings → Pages.
-2. Source sifatida `gh-pages` branch’ni tanlang.
+2. Build and deployment: `GitHub Actions` ni tanlang.
 3. Deploy tugagach, `https://<user>.github.io/<repo>/` yoki custom domain orqali sayt ochiladi.
 
 Eslatma: Agar custom domen bo‘lmasa, build `--base-href /<repo>/` bilan qilinadi. Domen o‘zgarganda brauzer keshini tozalash foydali.
+
+#### Live URL (auto-deploy)
+
+- Prod (Pages): <https://umgvine.github.io/ya-market/>
+
+CI `/.github/workflows/deploy-pages.yml` fayli orqali har bir `main` push’da Flutter Web’ni quyidagicha build qiladi:
+
+```bash
+flutter build web --release --base-href "/ya-market/" --pwa-strategy=offline-first
+```
+
+Shu sabab GitHub Pages’dagi subpathda (`/<repo>/`) assetlar to‘g‘ri yuklanadi.
 
 ### 3) Android APK release
 

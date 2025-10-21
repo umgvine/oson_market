@@ -43,6 +43,8 @@ jobs:
             --release \
             --base-href "/ya-market/" \
             --pwa-strategy=offline-first
+          # SPA fallback for client-side routing on GitHub Pages
+          cp build/web/index.html build/web/404.html
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
