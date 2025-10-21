@@ -630,7 +630,8 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                       bottom: Radius.circular(20),
                     ),
                     child: Container(
-                      decoration: const BoxDecoration(gradient: kAppGradient),
+                      // Use solid brand blue instead of gradient
+                      color: const Color(0xFF3B82F6),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
